@@ -4,8 +4,8 @@
 #' @param revision one or two revisions of the git repository. If one revision is provided, the diff will be between the revision (old, A) and your local file (new, B). If there are two revisions, the diff is between the first revision (old, A) and the second revision (new, B). 
 #' @param context How mutch context should the output contain? \code{full} for the whole file, \code{auto} for git standard (3 lines), or any number used in the \code{git diff option --unified=context} 
 #' @param git.options string, contains options passed to the git command. The following options are already set and cannot be overwritten: \code{--color=always}, \code{--color-words}, and \code{--word-diff}, \code{--unified=context}
-#' @param output 
-#' @param output.file
+#' @param output string, output of the html code produced by the function, \code{viewer} to show the diff in the RStudio viewer, \code{string} to return as a string with the html body part (without the body-tag), or \code{file} for saving a standalone html version to a file. If you choose \code{file} you must provide the file name in the parameter \code{output.file}
+#' @param output.file a connection, or a character string naming the file to write to
 #' 
 #' @export
 #' 
@@ -15,9 +15,14 @@ show_diff <- function (
   context = c("full", "auto")
   git.options = "--ignore-space-change --ignore-blank-lines --minimal", 
   clean = TRUE, 
-  output = c("viewer", "return", "file"), 
+  output = c("viewer", "string", "file"), 
   output.file = NULL) {
   
+  output <- match.arg(output)
+  
+  if (output == "file" && is.null(output.file)) {
+    stop("You must provide a connection or a file name, if you set output to 'file'.")
+  }
   
   ### prepare path, options, working directory, coloring
   file <- normalizePath(file)
