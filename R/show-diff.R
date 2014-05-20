@@ -150,6 +150,8 @@ show_diff <- function (
     return(diff)
   } else {
     
+    tmpdir <- tempdir()
+    
     if (is.null(template)) {
       template <- system.file("html", "template.html", package = getPackageName())
     }
@@ -160,14 +162,24 @@ show_diff <- function (
       jquery <- system.file("js", "jquery-1.11.1.min.js", package = getPackageName())
     }
     
+    if (output == "viewer") {
+      
+      css.tmp <- file.path(tmpdir, "css.css")
+      file.copy(css, css.tmp, overwrite = TRUE)
+      css <- basename(css.tmp)
+      jquery.tmp <- file.path(tmpdir, "jquery.js")
+      file.copy(jquery, jquery.tmp, overwrite = TRUE)
+      jquery <- basename(jquery.tmp)
+      
+      output.file <- file.path(tmpdir, "show_diff.html")
+    }
+    
     whisker.template <- paste(readLines(template, warn = FALSE), collapse = "\n")
     
     html <- whisker.render(whisker.template, data = list(css = css, 
                                                          jquery = jquery, 
                                                          body = paste(diff, collapse="\n")))
-    if (output == "viewer") {
-      output.file <- tempfile(fileext=".html")
-    }
+    
     con <- file(output.file, "w+", encoding = "UTF-8")
     writeLines(html, con = con)
     close(con)
