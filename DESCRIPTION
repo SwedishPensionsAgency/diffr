@@ -1,10 +1,11 @@
 Package: diffr
 Type: Package
 Title: Git diff to html
-Version: 0.1a
+Version: 0.1-0
 Date: 2014-05-17
 Author: Cedric Perriard
 Maintainer: Cedric Perriard <cedric.perriard@pensionsmyndigheten.se>
 Description: ...
 License: MIT
-Depends: whisker (>= 0.3-2)
+Depends:
+    whisker (>= 0.3-2)
