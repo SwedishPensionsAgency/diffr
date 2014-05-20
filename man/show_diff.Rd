@@ -5,12 +5,11 @@
 \usage{
 show_diff(file, commit = "HEAD", context = c("full", "auto"),
   git.options = "--ignore-space-change --ignore-blank-lines --minimal",
-  clean = TRUE, output = c("viewer", "string", "file"),
-  output.file = NULL, template = NULL, css = NULL, jquery = NULL,
-  verbose = FALSE)
+  output = c("viewer", "string", "file"), output.file = NULL,
+  template = NULL, css = NULL, jquery = NULL, verbose = FALSE)
 }
 \arguments{
-\item{file}{one or two files to create diff for. If exactly two paths are given and at least one points outside the current repository, \code{git diff} will compare the two files.}
+\item{file}{one or two files to create diff for. If exactly two paths are given and at least one points outside the current repository, \code{git diff} will compare the two files (A - B).}
 
 \item{commit}{one or two revisions hashes of the git repository or "HEAD" (and a revision hash). If one revision is provided, the diff will be between the revision (old, A) and your local file (new, B). If there are two revisions, the diff is between the first revision (old, A) and the second revision (new, B). Se the git diff manaual page for more information. (Run \code{git diff --help} in your console.)}
 
@@ -22,7 +21,11 @@ show_diff(file, commit = "HEAD", context = c("full", "auto"),
 
 \item{output.file}{a connection, or a character string naming the file to write to}
 
-\item{jquery}{url to the jQuery javascript library, NULL uses the internal bundled version}
+\item{template}{file path of a \link[whisker:whisker-package]{whisker} template, must contain at least the tag \code{\{\{&body\}\}}}
+
+\item{css}{file path or url to your custom css}
+
+\item{jquery}{file path or url to the jQuery javascript library, NULL uses the internal bundled version}
 
 \item{verbose}{output verbose information to the console}
 }
@@ -30,9 +33,11 @@ show_diff(file, commit = "HEAD", context = c("full", "auto"),
 Create a diff with git and export to html
 }
 \examples{
+\dontrun{
 # Clone the diffr repository from GitHub:
 # git clone https://github.com/SwedishPensionsAgency/diffr.git
 # Change working directory to the root of the repository.
 show_diff("R/show-diff.R", c("99e1fbdc"))
+}
 }
 
