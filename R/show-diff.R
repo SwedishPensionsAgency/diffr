@@ -97,7 +97,7 @@ show_diff <- function (
     standard.color <- color.diff[color.diff[["name"]] == color.diff.name, "standard"]
     if (standard.color == "") {
       if (color != "") {
-        system(paste("git config --global --unset", color.diff.name))
+        system(paste("git config --global --unset-all", color.diff.name))
       }
     } else {
       system(paste("git config --global", color.diff.name, standard.color))
@@ -119,7 +119,7 @@ show_diff <- function (
     old.color <- color.diff[color.diff[["name"]] == color.diff.name, "old"]
     if (old.color == "") {
       if (color.diff[color.diff[["name"]] == color.diff.name, "standard"] != "") {
-        system(paste("git config --global --unset", color.diff.name))
+        system(paste("git config --global --unset-all", color.diff.name))
       }
     } else {
       system(paste("git config --global", color.diff.name, old.color))
@@ -172,7 +172,7 @@ show_diff <- function (
     tmpdir <- tempdir()
     
     if (is.null(template)) {
-      template <- system.file("html", "template.html", package = getPackageName())
+      template <- system.file("template", "template.html", package = getPackageName())
     }
     if (is.null(css)) {
       css <- system.file("css", "style.css", package = getPackageName())
