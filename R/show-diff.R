@@ -132,7 +132,7 @@ show_diff <- function (
   # If there are no differences, throw a warning and return
   if (identical(diff, character(0))) {
     warning("There are no differences between the files.")
-    return()
+    return(NULL)
   }
   
   ### replace coloring with html tags
