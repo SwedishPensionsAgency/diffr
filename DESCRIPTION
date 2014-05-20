@@ -7,5 +7,6 @@ Author: Cedric Perriard
 Maintainer: Cedric Perriard <cedric.perriard@pensionsmyndigheten.se>
 Description: ...
 License: MIT
+Roxygen: list(wrap = FALSE)
 Depends:
     whisker (>= 0.3-2)
