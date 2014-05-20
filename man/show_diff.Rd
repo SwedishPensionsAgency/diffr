@@ -29,4 +29,10 @@ show_diff(file, commit = "HEAD", context = c("full", "auto"),
 \description{
 Create a diff with git and export to html
 }
+\examples{
+# Clone the diffr repository from GitHub:
+# git clone https://github.com/SwedishPensionsAgency/diffr.git
+# Change working directory to the root of the repository.
+show_diff("R/show-diff.R", c("99e1fbdc"))
+}
 

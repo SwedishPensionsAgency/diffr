@@ -8,6 +8,13 @@
 #' @param output.file a connection, or a character string naming the file to write to
 #' @param jquery url to the jQuery javascript library, NULL uses the internal bundled version
 #' @param verbose output verbose information to the console
+#' 
+#' @examples
+#' # Clone the diffr repository from GitHub: 
+#' # git clone https://github.com/SwedishPensionsAgency/diffr.git
+#' # Change working directory to the root of the repository. 
+#' show_diff("R/show-diff.R", c("99e1fbdc"))
+#' 
 #' @export
 #' 
 show_diff <- function (
@@ -203,7 +210,8 @@ show_diff <- function (
     
     html <- whisker.render(whisker.template, data = list(css = css, 
                                                          jquery = jquery, 
-                                                         body = diff.output))
+                                                         body = diff.output, 
+                                                         command = command))
     
     con <- file(output.file, "w+", encoding = "UTF-8")
     writeLines(html, con = con)
