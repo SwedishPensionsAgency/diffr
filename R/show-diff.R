@@ -13,7 +13,7 @@
 show_diff <- function (
   file, 
   commit = "HEAD", 
-  context = c("full", "auto")
+  context = c("full", "auto"),
   git.options = "--ignore-space-change --ignore-blank-lines --minimal", 
   clean = TRUE, 
   output = c("viewer", "string", "file"), 
@@ -49,38 +49,39 @@ show_diff <- function (
   setwd(dirname(file))
   
   # save git colors and set to standard colors: 
-  color.diff <- data.frame(name = c("color.diff.plain", 
-                                    "color.diff.meta", 
+  # se http://ascii-table.com/ansi-escape-sequences.php for more information about coloring
+  color.diff <- data.frame(name = c("color.diff.meta", 
                                     "color.diff.frag", 
                                     "color.diff.func", 
                                     "color.diff.old", 
                                     "color.diff.new", 
                                     "color.diff.commit", 
-                                    "color.diff.whitespace"), 
-                           standard = c("", 
-                                        "bold", 
+                                    "color.diff.whitespace", 
+                                    "color.diff.plain"), 
+                           standard = c("bold", 
                                         "cyan", 
                                         "magenta", 
                                         "red", 
                                         "green", 
                                         "yellow", 
-                                        "blue"), 
-                           pattern = c("(.*?)\\[m", 
-                                       "\033\\[1m(.+?)\\[m", 
-                                       "\033\\[36m(.+?)\\[m", 
-                                       "\033\\[35m(.+?)\\[m", 
-                                       "\033\\[31m(.+?)\\[m", 
-                                       "\033\\[32m(.+?)\\[m", 
-                                       "\033\\[33m(.+?)\\[m", 
-                                       "\033\\[34m(.+?)\\[m"),
-                           replacement = c("\\1", 
-                                           "<span class=\"meta\">\\1</span>",
+                                        "blue", 
+                                        ""), 
+                           pattern = c("\033\\[1m(.+?)\033\\[m", 
+                                       "\033\\[36m(.+?)\033\\[m", 
+                                       "\033\\[35m(.+?)\033\\[m", 
+                                       "\033\\[31m(.+?)\033\\[m", 
+                                       "\033\\[32m(.+?)\033\\[m", 
+                                       "\033\\[33m(.+?)\033\\[m", 
+                                       "\033\\[34m(.+?)\033\\[m", 
+                                       "(.*?)\033\\[m"),
+                           replacement = c("<span class=\"meta\">\\1</span>",
                                            "<span class=\"frag\">\\1</span>",
                                            "<span class=\"func\">\\1</span>",
                                            "<del>\\1</del>",
                                            "<ins>\\1</ins>",
                                            "<span class=\"commit\">\\1</span>",
-                                           "<span class=\"whitespace\">\\1</span>"),
+                                           "<span class=\"whitespace\">\\1</span>", 
+                                           "\\1"),
                            old = rep("", 8), 
                            stringsAsFactors = FALSE)
   
@@ -95,7 +96,9 @@ show_diff <- function (
     # set standard coloring
     standard.color <- color.diff[color.diff[["name"]] == color.diff.name, "standard"]
     if (standard.color == "") {
-      system(paste("git config --global --unset", color.diff.name))
+      if (color != "") {
+        system(paste("git config --global --unset", color.diff.name))
+      }
     } else {
       system(paste("git config --global", color.diff.name, standard.color))
     }
@@ -103,29 +106,21 @@ show_diff <- function (
 
   
   ### run git command
-  command <- paste("git diff", git.options, commit, ifelse(commit[1] != "", "--", ""), paste(shQuote(file), collapse = " ")) 
+  command <- paste("git diff", 
+                   git.options, 
+                   commit, 
+                   ifelse(commit[1] != "", "--", ""), 
+                   paste(shQuote(file), collapse = " ")) 
   diff <- system(command, intern = TRUE)
-  
-  # keep the original diff
-  diff.orig <- diff
-  
-  ### replace coloring with html tags
-  for (color.diff.name in color.diff[["name"]]){
-    pattern <- color.diff[color.diff[["name"]] == color.diff.name, "pattern"]
-    replacement <- color.diff[color.diff[["name"]] == color.diff.name, "replacement"]
-    diff <- gsub(pattern, replacement, diff)
-  }
-  
-  
-  
-  
   
   ### restore coloring and working directory
   # set back git colors
   for (color.diff.name in color.diff[["name"]]) {
     old.color <- color.diff[color.diff[["name"]] == color.diff.name, "old"]
-    if (color.diff.standard[[color.diff.name]] == "") {
-      system(paste("git config --global --unset", color.diff.name))
+    if (old.color == "") {
+      if (color.diff[color.diff[["name"]] == color.diff.name, "standard"] != "") {
+        system(paste("git config --global --unset", color.diff.name))
+      }
     } else {
       system(paste("git config --global", color.diff.name, old.color))
     }
@@ -133,6 +128,19 @@ show_diff <- function (
   
   #set back working directory
   setwd(wd)
+  
+  # If there are no differences, throw a warning and return
+  if (identical(diff, character(0))) {
+    warning("There are no differences between the files.")
+    return()
+  }
+  
+  ### replace coloring with html tags
+  for (color.diff.name in color.diff[["name"]]){
+    pattern <- color.diff[color.diff[["name"]] == color.diff.name, "pattern"]
+    replacement <- color.diff[color.diff[["name"]] == color.diff.name, "replacement"]
+    diff <- gsub(pattern, replacement, diff)
+  }
   
   
   ### output
@@ -154,14 +162,16 @@ show_diff <- function (
     
     whisker.template <- paste(readLines(template, warn = FALSE), collapse = "\n")
     
-    html <- whisker.render(template, data = list(css = css, jquery = jquery, body = diff))
-    if ("viewer") {
+    html <- whisker.render(whisker.template, data = list(css = css, 
+                                                         jquery = jquery, 
+                                                         body = paste(diff, collapse="\n")))
+    if (output == "viewer") {
       output.file <- tempfile(fileext=".html")
     }
     con <- file(output.file, "w+", encoding = "UTF-8")
     writeLines(html, con = con)
     close(con)
-    if ("viewer" && exists("viewer", envir=getNamespace("rstudio"))) {
+    if (output == "viewer" && exists("viewer", envir=getNamespace("rstudio"))) {
       rstudio::viewer(output.file)
     }
   }
