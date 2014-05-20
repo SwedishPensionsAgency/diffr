@@ -1,0 +1,53 @@
+\name{show_diff}
+\alias{show_diff}
+\title{Create a diff with git and export to html}
+\usage{
+show_diff(file, commit = "HEAD", context = c("full", "auto"),
+  git.options = "--ignore-space-change --ignore-blank-lines --minimal",
+  clean = TRUE, output = c("viewer", "string", "file"),
+  output.file = NULL, template = NULL, css = NULL, jquery = NULL)
+}
+\arguments{
+  \item{file}{one or two files to create diff for. If
+  exactly two paths are given and at least one points
+  outside the current repository, \code{git diff} will
+  compare the two files.}
+
+  \item{commit}{one or two revisions hashes of the git
+  repository or "HEAD" (and a revision hash). If one
+  revision is provided, the diff will be between the
+  revision (old, A) and your local file (new, B). If there
+  are two revisions, the diff is between the first revision
+  (old, A) and the second revision (new, B). Se the git
+  diff manaual page for more information. (Run \code{git
+  diff --help} in your console.)}
+
+  \item{context}{How mutch context should the output
+  contain? \code{full} for the whole file, \code{auto} for
+  git standard (3 lines), or any number used in the
+  \code{git diff option --unified=context}}
+
+  \item{git.options}{string, contains options passed to the
+  git command. The following options are already set and
+  cannot be overwritten: \code{--color=always},
+  \code{--color-words}, and \code{--word-diff},
+  \code{--unified=context}}
+
+  \item{output}{string, output of the html code produced by
+  the function, \code{viewer} to show the diff in the
+  RStudio viewer, \code{string} to return as a string with
+  the html body part (without the body-tag), or \code{file}
+  for saving a standalone html version to a file. If you
+  choose \code{file} you must provide the file name in the
+  parameter \code{output.file}}
+
+  \item{output.file}{a connection, or a character string
+  naming the file to write to}
+
+  \item{jquery}{url to the jQuery javascript library, NULL
+  uses the internal bundled version}
+}
+\description{
+Create a diff with git and export to html
+}
+
