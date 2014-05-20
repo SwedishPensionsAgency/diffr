@@ -1,32 +1,48 @@
 #' Create a diff with git and export to html
 #' 
-#' @param file file to create diff for
-#' @param revision one or two revisions of the git repository. If one revision is provided, the diff will be between the revision (old, A) and your local file (new, B). If there are two revisions, the diff is between the first revision (old, A) and the second revision (new, B). 
+#' @param file one or two files to create diff for. If exactly two paths are given and at least one points outside the current repository, \code{git diff} will compare the two files.
+#' @param commit one or two revisions hashes of the git repository or "HEAD" (and a revision hash). If one revision is provided, the diff will be between the revision (old, A) and your local file (new, B). If there are two revisions, the diff is between the first revision (old, A) and the second revision (new, B). Se the git diff manaual page for more information. (Run \code{git diff --help} in your console.)
 #' @param context How mutch context should the output contain? \code{full} for the whole file, \code{auto} for git standard (3 lines), or any number used in the \code{git diff option --unified=context} 
 #' @param git.options string, contains options passed to the git command. The following options are already set and cannot be overwritten: \code{--color=always}, \code{--color-words}, and \code{--word-diff}, \code{--unified=context}
 #' @param output string, output of the html code produced by the function, \code{viewer} to show the diff in the RStudio viewer, \code{string} to return as a string with the html body part (without the body-tag), or \code{file} for saving a standalone html version to a file. If you choose \code{file} you must provide the file name in the parameter \code{output.file}
 #' @param output.file a connection, or a character string naming the file to write to
+#' @param jquery url to the jQuery javascript library, NULL uses the internal bundled version
 #' 
 #' @export
 #' 
 show_diff <- function (
   file, 
-  revision = NULL, 
+  commit = "HEAD", 
   context = c("full", "auto")
   git.options = "--ignore-space-change --ignore-blank-lines --minimal", 
   clean = TRUE, 
   output = c("viewer", "string", "file"), 
-  output.file = NULL) {
+  output.file = NULL, 
+  template = NULL, 
+  css = NULL, 
+  jquery = NULL) {
   
   output <- match.arg(output)
-  
   if (output == "file" && is.null(output.file)) {
     stop("You must provide a connection or a file name, if you set output to 'file'.")
   }
   
   ### prepare path, options, working directory, coloring
   file <- normalizePath(file)
-  git.options <- paste("--color=always --color-words --word-diff", git.options)
+  
+  # options
+  if (!is.numeric(context)) {
+    context <- match.arg(context)
+  }
+  if (context == "full") {
+    unified <- paste0("--unified=", sum(sapply(file, function(x){length(readLines(x, warn = FALSE))}), na.rm = TRUE))
+  } else if (context == "auto") {
+    unified <- ""
+  } else {
+    unified <- paste0("--unified=", context)
+  }
+  
+  git.options <- paste("--color=always --color-words --word-diff=color", unified, git.options)
   
   # set working directory so that git will work
   wd <- getwd()
@@ -68,8 +84,6 @@ show_diff <- function (
                            old = rep("", 8), 
                            stringsAsFactors = FALSE)
   
-  
-  
   for (color.diff.name in color.diff[["name"]]) {
     # save old coloring information
     color <- suppressWarnings(system(paste("git config --global", color.diff.name), intern = TRUE))
@@ -88,8 +102,22 @@ show_diff <- function (
   }
 
   
-  # do stuff
-
+  ### run git command
+  command <- paste("git diff", git.options, commit, ifelse(commit[1] != "", "--", ""), paste(shQuote(file), collapse = " ")) 
+  diff <- system(command, intern = TRUE)
+  
+  # keep the original diff
+  diff.orig <- diff
+  
+  ### replace coloring with html tags
+  for (color.diff.name in color.diff[["name"]]){
+    pattern <- color.diff[color.diff[["name"]] == color.diff.name, "pattern"]
+    replacement <- color.diff[color.diff[["name"]] == color.diff.name, "replacement"]
+    diff <- gsub(pattern, replacement, diff)
+  }
+  
+  
+  
   
   
   ### restore coloring and working directory
@@ -106,149 +134,36 @@ show_diff <- function (
   #set back working directory
   setwd(wd)
   
+  
+  ### output
+  diff <- paste0("<p>", diff, "</p>")
+  
+  if (output == "string") {
+    return(diff)
+  } else {
+    
+    if (is.null(template)) {
+      template <- system.file("html", "template.html", package = getPackageName())
+    }
+    if (is.null(css)) {
+      css <- system.file("css", "style.css", package = getPackageName())
+    }
+    if (is.null(jquery)) {
+      jquery <- system.file("js", "jquery-1.11.1.min.js", package = getPackageName())
+    }
+    
+    whisker.template <- paste(readLines(template, warn = FALSE), collapse = "\n")
+    
+    html <- whisker.render(template, data = list(css = css, jquery = jquery, body = diff))
+    if ("viewer") {
+      output.file <- tempfile(fileext=".html")
+    }
+    con <- file(output.file, "w+", encoding = "UTF-8")
+    writeLines(html, con = con)
+    close(con)
+    if ("viewer" && exists("viewer", envir=getNamespace("rstudio"))) {
+      rstudio::viewer(output.file)
+    }
+  }
+  
 }
-
-# get git config diff color
-# set git config diff colors to standard
-# git config --global color.diff.new "green"
-# color.diff
-# color.diff.<slot>
-#   
-#   Use customized color for diff colorization. <slot> specifies which part of the patch to use the specified color, and is one of plain (context text), meta (metainformation), frag (hunk header), func (function in hunk header), old (removed lines), new (added lines), commit (commit headers), or whitespace (highlighting whitespace errors). The values of these variables may be specified as in color.branch.<slot>.
-
-ins = "\033\\[32m(.+?)\033\\[m" 
-del = "\033\\[31m(.+?)\033\\[m"
-
-# run git command
-
-# set back git config diff colors
-
-commit <- ""
-file <- ""
-command <- paste("git diff --color=always --color-words --word-diff=plain --ignore-space-change --ignore-blank-lines --minimal  --unified=1000000", commit, "--", file)
-diff <- system(command, intern = TRUE)
-
-
-
-
-#deletions:
-diff <- gsub("\033\\[31m(.+?)\033\\[m", "<del>\\1</del>", diff)
-
-#insertitions:
-diff <- gsub("\033\\[32m(.+?)\033\\[m", "<ins>\\1</ins>", diff)
-
-#remove other diff stuff, e.g. \033[m
-diff <- gsub("\033\\[m", "", diff)
-
-output <- paste0("<p>", diff, "</p>")
-
-#cat(paste(output, collapse = "\n"))
-
-html.head <- "<!DOCTYPE html>
-<html>
-<head>
-<meta charset=\"UTF-8\" />
-<link href=\"http://d2c5utp5fpfikz.cloudfront.net/3_1_1/css/bootstrap.min.css\" rel=\"stylesheet\">
-<style>
-ins {color: green;}
-del {color: red;}
-.no-highlighting{
-color: black;
-text-decoration: none; 
-}
-.no-decoration {
-text-decoration: none;
-}
-.nodisp {display: none;}
-code {color: black;}
-body{padding: 5px;}
-
-#buttons{position: fixed; 
-top: 5px;
-right: 15px;
-}
-</style>
-<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>
-<script>
-
-function showHide(what) {
-
-if (what == 'diff') {
-$( 'del, ins').each(function( i ){
-this.style.display = 'inline';
-$ ( this ).removeClass( 'no-decoration' );
-$ (this ).toggleClass('no-highlighting');
-});
-$ ( '#toggle' ).addClass( 'nodisp');
-$ ( '#ins' ).removeClass( 'nodisp no-decoration');
-$ ( '#del' ).removeClass( 'nodisp no-decoration');
-$ ( '#diff' ).addClass( 'nodisp');
-
-} else if (what == 'ins'){
-$( 'ins' ).each(function( i ) {
-this.style.display = 'inline';
-$ ( this ).addClass( 'no-decoration' );
-});
-$( 'del' ).each(function( i ) {
-this.style.display = 'none';
-$ ( this ).removeClass( 'no-decoration' );
-});
-$ ( '#toggle' ).removeClass( 'nodisp');
-$ ( '#del' ).removeClass( 'nodisp');
-$ ( '#ins' ).addClass( 'nodisp');
-$ ( '#diff' ).removeClass( 'nodisp');
-
-} else {
-$( 'del' ).each(function( i ) {
-this.style.display = 'inline';
-$ ( this ).addClass( 'no-decoration' );
-});
-$( 'ins' ).each(function( i ) {
-this.style.display = 'none';
-$ ( this ).removeClass( 'no-decoration' );
-});
-$ ( '#toggle' ).removeClass( 'nodisp');
-$ ( '#ins' ).removeClass( 'nodisp');
-$ ( '#del' ).addClass( 'nodisp');
-$ ( '#diff' ).removeClass( 'nodisp');
-
-}
-
-}
-
-function highlighting(){
-$( 'del, ins').each(function( i ){
-$ (this ).toggleClass('no-highlighting');
-});
-}
-
-
-
-</script>
-</head>
-<body>
-<div id=\"buttons\">
-<button id=\"del\" type=\"button\" onclick=\"showHide('del')\">A</button>
-<button id=\"ins\" type=\"button\" onclick=\"showHide('ins')\">B</button>
-<button id=\"diff\" class=\"nodisp\" type=\"button\" onclick=\"showHide('diff')\">Diff</button>
-<button id=\"toggle\" class=\"nodisp\" type=\"button\" onclick=\"highlighting()\">Color</button>
-</div>
-<code>
-"
-
-html.foot <- "</code>
-</body>
-</html>"
-
-
-# con <- file("diff.html", "w+", encoding = "UTF-8")
-# writeLines(c(html.head, output, html.foot), con = con)
-# close(con)
-
-tmpfile <- htmlFile <- tempfile(fileext=".html")
-
-con <- file(tmpfile, "w+", encoding = "UTF-8")
-writeLines(c(html.head, output, html.foot), con = con)
-close(con)
-
-rstudio::viewer(tmpfile)
