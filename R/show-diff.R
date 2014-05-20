@@ -136,6 +136,8 @@ show_diff <- function (
   }
   
   ### replace coloring with html tags
+  # escape html tags
+  diff <- whisker.escape(diff)
   for (color.diff.name in color.diff[["name"]]){
     pattern <- color.diff[color.diff[["name"]] == color.diff.name, "pattern"]
     replacement <- color.diff[color.diff[["name"]] == color.diff.name, "replacement"]
