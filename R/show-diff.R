@@ -144,10 +144,29 @@ show_diff <- function (
   
   
   ### output
-  diff <- paste0("<p>", diff, "</p>")
+  # split header from body
+  index.diff.header <- grepl("<span class=\"meta\">|<span class=\"frag\">|<span class=\"func\">", diff)
+  diff.header <- paste(paste0("<p>", diff[index.diff.header], "</p>"), collapse="\n")
+  diff.header <- paste("<div id=\"diff-header\">", diff.header, "</div>", sep = "\n")
+  
+  diff.body <- diff[!index.diff.header]
+  index.diff.body.changes <- grepl("<del>|<ins>|<span class=\"whitespace\">", diff.body)
+  
+  # add css class to changed lines
+  for (i in 1:length(diff.body)) {
+    if (index.diff.body.changes[i]) {
+      diff.body[i] <- paste0("<p class=\"changes\">", diff.body[i], "</p>")
+    } else {
+      diff.body[i] <- paste0("<p class=\"no-changes\">", diff.body[i], "</p>")
+    }
+  }
+  diff.body <- paste("<div id=\"diff-body\">", paste(diff.body, collapse="\n"), "</div>", sep = "\n") 
+  
+  # prepare final diff output
+  diff.output <- paste(diff.header, diff.body, sep = "\n")
   
   if (output == "string") {
-    return(diff)
+    return(diff.output)
   } else {
     
     tmpdir <- tempdir()
@@ -178,7 +197,7 @@ show_diff <- function (
     
     html <- whisker.render(whisker.template, data = list(css = css, 
                                                          jquery = jquery, 
-                                                         body = paste(diff, collapse="\n")))
+                                                         body = diff.output))
     
     con <- file(output.file, "w+", encoding = "UTF-8")
     writeLines(html, con = con)

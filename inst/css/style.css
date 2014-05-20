@@ -27,8 +27,22 @@ del {
   display: none;
   }
 
+.changes {
+  background-color: rgba(200, 200, 200, 0.5);
+  }
+
 #buttons {
   position: fixed; 
   top: 5px;
   right: 15px;
+  z-index: 999;
   }
+  
+#diff-header {
+  background-color: rgba(200, 200, 255, 0.5);
+}
+
+#wrapper {
+  top: 5px;
+  position: absolute; 
+}

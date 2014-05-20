@@ -11,11 +11,16 @@
         if (what == 'diff') {
           $( 'del, ins').each(function( i ){
             this.style.display = 'inline';
-            $ ( this ).removeClass( 'no-decoration' );
-            if ($ ( this ).hasClass('no-highlighting')) {
-              $ ( this ).removeClass('no-highlighting');
+            $( this ).removeClass( 'no-decoration' );
+            if ($( this ).hasClass('no-highlighting')) {
+              $( this ).removeClass('no-highlighting');
             }
             
+          });
+          $( '#diff-body p' ).each(function( i ){
+            if ($( this ).hasClass('no-changes') === false && $( this ).hasClass('changes') === false) {
+              $( this ).addClass('changes');
+            }
           });
           $ ( '#toggle' ).addClass( 'nodisp');
           $ ( '#ins' ).removeClass( 'nodisp no-decoration');
@@ -62,6 +67,13 @@
             $ ( this ).addClass('no-highlighting');
           }
         });
+        $( '#diff-body p' ).each(function( i ){
+            if ($( this ).hasClass('no-changes') === false && $( this ).hasClass('changes')) {
+              $( this ).removeClass('changes');
+            } else if ($( this ).hasClass('no-changes') === false && $( this ).hasClass('changes') === false) {
+              $( this ).addClass('changes');
+            }
+          });
       }
 
 
@@ -75,10 +87,12 @@
       <button id="diff" class="nodisp" type="button" onclick="showHide('diff')">Diff</button>
       <button id="toggle" class="nodisp" type="button" onclick="highlighting()">Color</button>
     </div>
-    <code>
-    
-    {{&body}}
-    
-    </code>
+    <div id="wrapper">
+      <code>
+      
+        {{&body}}
+      
+      </code>
+    </div>
   </body>
 </html>
