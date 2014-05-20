@@ -1,77 +1,84 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8" />
-<link href="{{css}}" rel="stylesheet">
-<script src="{{jquery}}"></script>
-<script>
+  <head>
+    <meta charset="UTF-8" />
+    <link href="{{&css}}" rel="stylesheet">
+    <script src="{{&jquery}}"></script>
+    <script>
 
-function showHide(what) {
+      function showHide(what) {
+      
+        if (what == 'diff') {
+          $( 'del, ins').each(function( i ){
+            this.style.display = 'inline';
+            $ ( this ).removeClass( 'no-decoration' );
+            if ($ ( this ).hasClass('no-highlighting')) {
+              $ ( this ).removeClass('no-highlighting');
+            }
+            
+          });
+          $ ( '#toggle' ).addClass( 'nodisp');
+          $ ( '#ins' ).removeClass( 'nodisp no-decoration');
+          $ ( '#del' ).removeClass( 'nodisp no-decoration');
+          $ ( '#diff' ).addClass( 'nodisp');
+        
+        } else if (what == 'ins'){
+            $( 'ins' ).each(function( i ) {
+            this.style.display = 'inline';
+            $ ( this ).addClass( 'no-decoration' );
+          });
+          $( 'del' ).each(function( i ) {
+            this.style.display = 'none';
+            $ ( this ).removeClass( 'no-decoration' );
+          });
+          $ ( '#toggle' ).removeClass( 'nodisp');
+          $ ( '#del' ).removeClass( 'nodisp');
+          $ ( '#ins' ).addClass( 'nodisp');
+          $ ( '#diff' ).removeClass( 'nodisp');
+        
+        } else {
+          $( 'del' ).each(function( i ) {
+            this.style.display = 'inline';
+            $ ( this ).addClass( 'no-decoration' );
+          });
+            $( 'ins' ).each(function( i ) {
+            this.style.display = 'none';
+            $ ( this ).removeClass( 'no-decoration' );
+          });
+          $ ( '#toggle' ).removeClass( 'nodisp');
+          $ ( '#ins' ).removeClass( 'nodisp');
+          $ ( '#del' ).addClass( 'nodisp');
+          $ ( '#diff' ).removeClass( 'nodisp');
+          
+        }
+      
+      }
+      
+      function highlighting(){
+        $( 'del, ins').each(function( i ){
+          if ($ ( this ).hasClass('no-highlighting')) {
+              $ ( this ).removeClass('no-highlighting');
+          } else {
+            $ ( this ).addClass('no-highlighting');
+          }
+        });
+      }
 
-if (what == 'diff') {
-$( 'del, ins').each(function( i ){
-this.style.display = 'inline';
-$ ( this ).removeClass( 'no-decoration' );
-$ (this ).toggleClass('no-highlighting');
-});
-$ ( '#toggle' ).addClass( 'nodisp');
-$ ( '#ins' ).removeClass( 'nodisp no-decoration');
-$ ( '#del' ).removeClass( 'nodisp no-decoration');
-$ ( '#diff' ).addClass( 'nodisp');
-
-} else if (what == 'ins'){
-$( 'ins' ).each(function( i ) {
-this.style.display = 'inline';
-$ ( this ).addClass( 'no-decoration' );
-});
-$( 'del' ).each(function( i ) {
-this.style.display = 'none';
-$ ( this ).removeClass( 'no-decoration' );
-});
-$ ( '#toggle' ).removeClass( 'nodisp');
-$ ( '#del' ).removeClass( 'nodisp');
-$ ( '#ins' ).addClass( 'nodisp');
-$ ( '#diff' ).removeClass( 'nodisp');
-
-} else {
-$( 'del' ).each(function( i ) {
-this.style.display = 'inline';
-$ ( this ).addClass( 'no-decoration' );
-});
-$( 'ins' ).each(function( i ) {
-this.style.display = 'none';
-$ ( this ).removeClass( 'no-decoration' );
-});
-$ ( '#toggle' ).removeClass( 'nodisp');
-$ ( '#ins' ).removeClass( 'nodisp');
-$ ( '#del' ).addClass( 'nodisp');
-$ ( '#diff' ).removeClass( 'nodisp');
-
-}
-
-}
-
-function highlighting(){
-$( 'del, ins').each(function( i ){
-$ (this ).toggleClass('no-highlighting');
-});
-}
 
 
-
-</script>
-</head>
-<body>
-<div id="buttons">
-<button id="del" type="button" onclick="showHide('del')">A</button>
-<button id="ins" type="button" onclick="showHide('ins')">B</button>
-<button id="diff" class="nodisp" type="button" onclick="showHide('diff')">Diff</button>
-<button id="toggle" class="nodisp" type="button" onclick="highlighting()">Color</button>
-</div>
-<code>
-
-{{body}}
-
-</code>
-</body>
+    </script>
+  </head>
+  <body>
+    <div id="buttons">
+      <button id="del" type="button" onclick="showHide('del')">A</button>
+      <button id="ins" type="button" onclick="showHide('ins')">B</button>
+      <button id="diff" class="nodisp" type="button" onclick="showHide('diff')">Diff</button>
+      <button id="toggle" class="nodisp" type="button" onclick="highlighting()">Color</button>
+    </div>
+    <code>
+    
+    {{&body}}
+    
+    </code>
+  </body>
 </html>
