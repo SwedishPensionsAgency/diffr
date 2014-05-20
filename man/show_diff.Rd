@@ -6,7 +6,8 @@
 show_diff(file, commit = "HEAD", context = c("full", "auto"),
   git.options = "--ignore-space-change --ignore-blank-lines --minimal",
   clean = TRUE, output = c("viewer", "string", "file"),
-  output.file = NULL, template = NULL, css = NULL, jquery = NULL)
+  output.file = NULL, template = NULL, css = NULL, jquery = NULL,
+  verbose = FALSE)
 }
 \arguments{
 \item{file}{one or two files to create diff for. If exactly two paths are given and at least one points outside the current repository, \code{git diff} will compare the two files.}
@@ -22,6 +23,8 @@ show_diff(file, commit = "HEAD", context = c("full", "auto"),
 \item{output.file}{a connection, or a character string naming the file to write to}
 
 \item{jquery}{url to the jQuery javascript library, NULL uses the internal bundled version}
+
+\item{verbose}{output verbose information to the console}
 }
 \description{
 Create a diff with git and export to html

@@ -7,7 +7,7 @@
 #' @param output string, output of the html code produced by the function, \code{viewer} to show the diff in the RStudio viewer, \code{string} to return as a string with the html body part (without the body-tag), or \code{file} for saving a standalone html version to a file. If you choose \code{file} you must provide the file name in the parameter \code{output.file}
 #' @param output.file a connection, or a character string naming the file to write to
 #' @param jquery url to the jQuery javascript library, NULL uses the internal bundled version
-#' 
+#' @param verbose output verbose information to the console
 #' @export
 #' 
 show_diff <- function (
@@ -20,7 +20,8 @@ show_diff <- function (
   output.file = NULL, 
   template = NULL, 
   css = NULL, 
-  jquery = NULL) {
+  jquery = NULL, 
+  verbose = FALSE) {
   
   output <- match.arg(output)
   if (output == "file" && is.null(output.file)) {
@@ -108,9 +109,12 @@ show_diff <- function (
   ### run git command
   command <- paste("git diff", 
                    git.options, 
-                   commit, 
+                   paste(commit, collapse = ".."), 
                    ifelse(commit[1] != "", "--", ""), 
                    paste(shQuote(file), collapse = " ")) 
+  if (verbose) {
+    message("Git command: ", command)
+  }
   diff <- system(command, intern = TRUE)
   
   ### restore coloring and working directory
