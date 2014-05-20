@@ -183,7 +183,7 @@ show_diff <- function (
     
     if (output == "viewer") {
       
-      css.tmp <- file.path(tmpdir, "css.css")
+      css.tmp <- file.path(tmpdir, "style.css")
       file.copy(css, css.tmp, overwrite = TRUE)
       css <- basename(css.tmp)
       jquery.tmp <- file.path(tmpdir, "jquery.js")
