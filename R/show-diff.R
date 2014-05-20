@@ -158,25 +158,31 @@ show_diff <- function (
   
   ### output
   # split header from body
-  index.diff.header <- grepl("<span class=\"meta\">|<span class=\"frag\">|<span class=\"func\">", diff)
-  diff.header <- paste(paste0("<p>", diff[index.diff.header], "</p>"), collapse="\n")
-  diff.header <- paste("<div id=\"diff-header\">", diff.header, "</div>", sep = "\n")
+  index.diff.meta <- grepl("<span class=\"meta\">", diff)
+  index.diff.fragfunc <- grepl("<span class=\"frag\">|<span class=\"func\">", diff)
   
-  diff.body <- diff[!index.diff.header]
-  index.diff.body.changes <- grepl("<del>|<ins>|<span class=\"whitespace\">", diff.body)
+  #diff.header <- paste(paste0("<p>", diff[index.diff.header], "</p>"), collapse="\n")
+  #diff.header <- paste("<div id=\"diff-header\">", diff.header, "</div>", sep = "\n")
+  
+  #diff.body <- diff[!index.diff.header]
+  index.diff.body.changes <- grepl("<del>|<ins>|<span class=\"whitespace\">", diff)
   
   # add css class to changed lines
-  for (i in 1:length(diff.body)) {
-    if (index.diff.body.changes[i]) {
-      diff.body[i] <- paste0("<p class=\"changes\">", diff.body[i], "</p>")
+  for (i in 1:length(diff)) {
+    if (index.diff.meta[i]) {
+      diff[i] <- paste0("<p class=\"meta\">", diff[i], "</p>")
+    } else if (index.diff.fragfunc[i]) {
+      diff[i] <- paste0("<p class=\"fragfunc\">", diff[i], "</p>")
+    } else if (index.diff.body.changes[i]) {
+      diff[i] <- paste0("<p class=\"changes\">", diff[i], "</p>")
     } else {
-      diff.body[i] <- paste0("<p class=\"no-changes\">", diff.body[i], "</p>")
+      diff[i] <- paste0("<p class=\"no-changes\">", diff[i], "</p>")
     }
   }
-  diff.body <- paste("<div id=\"diff-body\">", paste(diff.body, collapse="\n"), "</div>", sep = "\n") 
+  #diff.body <- paste("<div id=\"diff-body\">", paste(diff.body, collapse="\n"), "</div>", sep = "\n") 
   
   # prepare final diff output
-  diff.output <- paste(diff.header, diff.body, sep = "\n")
+  diff.output <- paste(diff, collapse = "\n")
   
   if (output == "string") {
     return(diff.output)
@@ -216,8 +222,13 @@ show_diff <- function (
     con <- file(output.file, "w+", encoding = "UTF-8")
     writeLines(html, con = con)
     close(con)
-    if (output == "viewer" && exists("viewer", envir=getNamespace("rstudio"))) {
-      rstudio::viewer(output.file)
+    if (output == "viewer") {
+      viewer <- getOption("viewer")
+      if (!is.null(viewer)){
+        viewer(output.file)
+      } else {
+        utils::browseURL(output.file)
+      }
     }
   }
   
