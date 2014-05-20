@@ -44,10 +44,17 @@ p {
   right: 0.5em;
   z-index: 999;
   }
-  
+
+#command {
+  margin-bottom: 1em;
+  font-size: 1.1em;
+  max-width: 500px;
+  }
+
 #diff-header {
   background-color: rgba(200, 200, 255, 0.5);
   margin-bottom: 1em;
+  margin-right: 0.4em;
   padding: 0.4em
  }
 
