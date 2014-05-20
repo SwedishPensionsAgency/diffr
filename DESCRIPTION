@@ -1,9 +1,10 @@
 Package: diffr
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Git diff to html
+Version: 0.1a
 Date: 2014-05-17
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Cedric Perriard
+Maintainer: Cedric Perriard <cedric.perriard@pensionsmyndigheten.se>
+Description: ...
+License: MIT
+Depends: whisker (>= 0.3-2)
