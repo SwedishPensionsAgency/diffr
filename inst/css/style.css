@@ -44,9 +44,14 @@ p {
 p.meta, p.fragfunc {
   background-color: rgba(200, 200, 255, 0.5);
  }
+p.meta:first-of-type, p.fragfunc {
+  border-top: 1px solid rgba(200, 200, 255, 1);
+  }
+
 
 p.fragfunc {
-  margin-top: 0.5em;
+  margin-top: 1em;
+  
   }
 
 #buttons {
