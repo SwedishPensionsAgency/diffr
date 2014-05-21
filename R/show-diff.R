@@ -135,6 +135,9 @@ show_diff <- function (
     return(NULL)
   }
   
+  ###escape HTML 
+  diff <- whisker.escape(diff)
+  
   ### replace coloring with html tags
   for (color.diff.name in color.diff[["name"]]){
     pattern <- color.diff[color.diff[["name"]] == color.diff.name, "pattern"]
@@ -146,6 +149,7 @@ show_diff <- function (
   ### output
   # split header from body
   index.diff.header <- grepl("<span class=\"meta\">|<span class=\"frag\">|<span class=\"func\">", diff)
+  
   diff.header <- paste(paste0("<p>", diff[index.diff.header], "</p>"), collapse="\n")
   diff.header <- paste("<div id=\"diff-header\">", diff.header, "</div>", sep = "\n")
   
