@@ -1,5 +1,7 @@
 body {
-  padding: 5px;
+  padding: 0.1em;
+  font-family: Helvetica, Arial, Verdana, sans-serif; 
+  font-size: 0.82em;
   }
   
 code {
@@ -14,10 +16,12 @@ del {
   color: red;
   }
   
-.no-highlighting{
-  color: black;
-  text-decoration: none; 
+p {
+  white-space: pre;
+  margin: 0;
   }
+  
+
   
 .no-decoration {
   text-decoration: none;
@@ -30,19 +34,44 @@ del {
 .changes {
   background-color: rgba(200, 200, 200, 0.5);
   }
+  
+.no-highlighting{
+  color: black;
+  text-decoration: none; 
+  background-color: rgba(255, 255, 255, 0);
+  }
+  
+p.meta, p.fragfunc {
+  background-color: rgba(200, 200, 255, 0.5);
+ }
+p.meta:first-of-type, p.fragfunc {
+  border-top: 1px solid rgba(200, 200, 255, 1);
+  }
+
+
+p.fragfunc {
+  margin-top: 1em;
+  
+  }
 
 #buttons {
   position: fixed; 
-  top: 5px;
-  right: 15px;
+  top: 0.5em;
+  right: 0.5em;
   z-index: 999;
   }
-  
-#diff-header {
-  background-color: rgba(200, 200, 255, 0.5);
-}
+
+#command {
+  margin-bottom: 1em;
+  font-size: 1.1em;
+  max-width: 500px;
+  }
+
+#diff-body {
+  padding: 0.4em;
+ }
 
 #wrapper {
-  top: 5px;
+  top: 1em;
   position: absolute; 
 }
