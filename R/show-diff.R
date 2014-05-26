@@ -33,7 +33,12 @@ show_diff <- function (
   jquery = NULL, 
   verbose = FALSE) {
   
-  output <- match.arg(output)
+  if (length(output) > 1 && !is.null(output.file)) {
+    output = "file"
+  } else {
+    output <- match.arg(output)
+  }
+  
   if (output == "file" && is.null(output.file)) {
     stop("You must provide a connection or a file name, if you set output to 'file'.")
   }
