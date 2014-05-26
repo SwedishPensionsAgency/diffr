@@ -75,5 +75,6 @@ p.fragfunc {
 
 #wrapper {
   top: 1em;
-  position: absolute; 
+  position: absolute;
+  padding-bottom: 2em;
 }
