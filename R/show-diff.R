@@ -207,28 +207,29 @@ show_diff <- function (
     }
     
     if (output == "viewer") {
-      
-      if (standalone) {
-        css <- sprintf("<style type=\"text/css\">\n%s\n</style>", 
-                       paste(readLines(css, warn = FALSE), collapse = "\n"))
-        jquery <- sprintf("<script>\n%s\n</script>", 
-                          paste(readLines(jquery, warn = FALSE), collapse = "\n"))
-      } else {
-        
-        css.tmp <- file.path(tmpdir, "style.css")
-        file.copy(css, css.tmp, overwrite = TRUE)
-        css <- basename(css.tmp)
-        jquery.tmp <- file.path(tmpdir, "jquery.js")
-        file.copy(jquery, jquery.tmp, overwrite = TRUE)
-        jquery <- basename(jquery.tmp)
-        
-        css <- sprintf("<link href=\"%s\" rel=\"stylesheet\" />", css)
-        jquery <- sprintf("<script src=\"%s\"></script>", jquery)
-      }
-      
-      
+
+      css.tmp <- file.path(tmpdir, "style.css")
+      file.copy(css, css.tmp, overwrite = TRUE)
+      css <- basename(css.tmp)
+      jquery.tmp <- file.path(tmpdir, "jquery.js")
+      file.copy(jquery, jquery.tmp, overwrite = TRUE)
+      jquery <- basename(jquery.tmp)
       
       output.file <- file.path(tmpdir, "show_diff.html")
+    }
+    
+    if (standalone) {
+      if (output == "viewer") {
+        css <- css.tmp
+        jquery <- jquery.tmp
+      }
+      css <- sprintf("<style type=\"text/css\">\n%s\n</style>", 
+                     paste(readLines(css, warn = FALSE), collapse = "\n"))
+      jquery <- sprintf("<script>\n%s\n</script>", 
+                        paste(readLines(jquery, warn = FALSE), collapse = "\n"))
+    } else {  
+      css <- sprintf("<link href=\"%s\" rel=\"stylesheet\" />", css)
+      jquery <- sprintf("<script src=\"%s\"></script>", jquery)
     }
     
     whisker.template <- paste(readLines(template, warn = FALSE), collapse = "\n")
