@@ -9,6 +9,7 @@
 #' @param template file path of a \link[whisker:whisker-package]{whisker} template, must contain at least the tag \code{\{\{&body\}\}}
 #' @param css file path or url to your custom css
 #' @param jquery file path or url to the jQuery javascript library, NULL uses the internal bundled version
+#' @param standalone logical, if TRUE the css and the jQuery library are embedded in the html output
 #' @param verbose output verbose information to the console
 #' 
 #' @examples
@@ -31,6 +32,7 @@ show_diff <- function (
   template = NULL, 
   css = NULL, 
   jquery = NULL, 
+  standalone = TRUE, 
   verbose = FALSE) {
   
   if (length(output) > 1 && !is.null(output.file)) {
@@ -206,12 +208,25 @@ show_diff <- function (
     
     if (output == "viewer") {
       
-      css.tmp <- file.path(tmpdir, "style.css")
-      file.copy(css, css.tmp, overwrite = TRUE)
-      css <- basename(css.tmp)
-      jquery.tmp <- file.path(tmpdir, "jquery.js")
-      file.copy(jquery, jquery.tmp, overwrite = TRUE)
-      jquery <- basename(jquery.tmp)
+      if (standalone) {
+        css <- sprintf("<style type=\"text/css\">\n%s\n</style>", 
+                       paste(readLines(css, warn = FALSE), collapse = "\n"))
+        jquery <- sprintf("<script>\n%s\n</script>", 
+                          paste(readLines(jquery, warn = FALSE), collapse = "\n"))
+      } else {
+        
+        css.tmp <- file.path(tmpdir, "style.css")
+        file.copy(css, css.tmp, overwrite = TRUE)
+        css <- basename(css.tmp)
+        jquery.tmp <- file.path(tmpdir, "jquery.js")
+        file.copy(jquery, jquery.tmp, overwrite = TRUE)
+        jquery <- basename(jquery.tmp)
+        
+        css <- sprintf("<link href=\"%s\" rel=\"stylesheet\" />", css)
+        jquery <- sprintf("<script src=\"%s\"></script>", jquery)
+      }
+      
+      
       
       output.file <- file.path(tmpdir, "show_diff.html")
     }
