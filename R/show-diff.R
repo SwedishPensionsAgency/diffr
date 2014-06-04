@@ -2,6 +2,7 @@
 #' 
 #' @param file one or two files to create diff for. If exactly two paths are given and at least one points outside the current repository, \code{git diff} will compare the two files (A - B).
 #' @param commit one or two revisions hashes of the git repository or "HEAD" (and a revision hash). If one revision is provided, the diff will be between the revision (old, A) and your local file (new, B). If there are two revisions, the diff is between the first revision (old, A) and the second revision (new, B). Se the git diff manaual page for more information. (Run \code{git diff --help} in your console.)
+#' @param author character string, email address or name of the author, used in the \code{cite} attribute of the \code{ins} and \code{del} tags, e.g. \code{<ins cite="mailto:author">inserted</ins>}, if \code{NULL}, the default, the user email of the global git config is used. 
 #' @param context How mutch context should the output contain? \code{full} for the whole file, \code{auto} for git standard (3 lines), or any number used in the \code{git diff option --unified=context} 
 #' @param git.options string, contains options passed to the git command. The following options are already set and cannot be overwritten: \code{--color=always}, \code{--color-words}, and \code{--word-diff}, \code{--unified=context}
 #' @param output string, output of the html code produced by the function, \code{viewer} to show the diff in the RStudio viewer, \code{string} to return as a string with the html body part (without the body-tag), or \code{file} for saving a standalone html version to a file. If you choose \code{file} you must provide the file name in the parameter \code{output.file}
@@ -25,6 +26,7 @@
 show_diff <- function (
   file, 
   commit = "HEAD", 
+  author = NULL, 
   context = c("full", "auto"),
   git.options = "--ignore-space-change --ignore-blank-lines --minimal", 
   output = c("viewer", "string", "file"), 
@@ -66,6 +68,12 @@ show_diff <- function (
   wd <- getwd()
   setwd(dirname(file))
   
+  # add author information to ins/del tags 
+  if (is.null(author)) {
+    author <- system("git config --global --get user.email", intern = TRUE)
+  }
+  ins.del.cite <- ifelse(author != "", paste0(" cite=\"mailto:", author, "\""), "")
+  
   # save git colors and set to standard colors: 
   # se http://ascii-table.com/ansi-escape-sequences.php for more information about coloring
   color.diff <- data.frame(name = c("color.diff.meta", 
@@ -95,8 +103,8 @@ show_diff <- function (
                            replacement = c("<span class=\"meta\">\\1</span>",
                                            "<span class=\"frag\">\\1</span>",
                                            "<span class=\"func\">\\1</span>",
-                                           "<del>\\1</del>",
-                                           "<ins>\\1</ins>",
+                                           paste0("<del", ins.del.cite, ">\\1</del>"),
+                                           paste0("<ins", ins.del.cite, ">\\1</ins>"),
                                            "<span class=\"commit\">\\1</span>",
                                            "<span class=\"whitespace\">\\1</span>", 
                                            "\\1"),

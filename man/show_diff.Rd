@@ -3,7 +3,8 @@
 \alias{show_diff}
 \title{Create a diff with git and export to html}
 \usage{
-show_diff(file, commit = "HEAD", context = c("full", "auto"),
+show_diff(file, commit = "HEAD", author = NULL, context = c("full",
+  "auto"),
   git.options = "--ignore-space-change --ignore-blank-lines --minimal",
   output = c("viewer", "string", "file"), output.file = NULL,
   template = NULL, css = NULL, jquery = NULL, standalone = TRUE,
@@ -13,6 +14,8 @@ show_diff(file, commit = "HEAD", context = c("full", "auto"),
 \item{file}{one or two files to create diff for. If exactly two paths are given and at least one points outside the current repository, \code{git diff} will compare the two files (A - B).}
 
 \item{commit}{one or two revisions hashes of the git repository or "HEAD" (and a revision hash). If one revision is provided, the diff will be between the revision (old, A) and your local file (new, B). If there are two revisions, the diff is between the first revision (old, A) and the second revision (new, B). Se the git diff manaual page for more information. (Run \code{git diff --help} in your console.)}
+
+\item{author}{character string, email address or name of the author, used in the \code{cite} attribute of the \code{ins} and \code{del} tags, e.g. \code{<ins cite="mailto:author">inserted</ins>}, if \code{NULL}, the default, the user email of the global git config is used.}
 
 \item{context}{How mutch context should the output contain? \code{full} for the whole file, \code{auto} for git standard (3 lines), or any number used in the \code{git diff option --unified=context}}
 
