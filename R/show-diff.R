@@ -179,7 +179,7 @@ show_diff <- function (
   # split meta, frag/func, and del/ins/whitespace
   index.diff.meta <- grepl("<span class=\"meta\">", diff)
   index.diff.fragfunc <- grepl("<span class=\"frag\">|<span class=\"func\">", diff)
-  index.diff.body.changes <- grepl("<del>|<ins>|<span class=\"whitespace\">", diff)
+  index.diff.body.changes <- grepl("</del>|</ins>|<span class=\"whitespace\">", diff)
   
   # add css class to changed lines
   for (i in 1:length(diff)) {
